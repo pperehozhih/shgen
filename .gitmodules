@@ -1,0 +1,9 @@
+[submodule "3rd/hlslparser"]
+	path = 3rd/hlslparser
+	url = https://github.com/pperehozhih/hlslparser.git
+[submodule "3rd/hlsl2glsl"]
+	path = 3rd/hlsl2glsl
+	url = https://github.com/pperehozhih/hlsl2glslfork.git
+[submodule "3rd/glsl-optimizer"]
+	path = 3rd/glsl-optimizer
+	url = https://github.com/pperehozhih/glsl-optimizer.git
