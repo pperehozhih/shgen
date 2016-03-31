@@ -4,6 +4,9 @@
 *.o
 *.obj
 
+# build folder
+build
+
 # Precompiled Headers
 *.gch
 *.pch
