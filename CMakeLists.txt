@@ -9,18 +9,26 @@ add_subdirectory(3rd/glsl-optimizer)
 include_directories(include
 					3rd/hlslparser/src
 					3rd/hlsl2glsl/include
+					3rd/glsl-optimizer/src/glsl
 					)
 aux_source_directory(src SRC_LIST)
 
-list(REMOVE_ITEM SRC_LIST "src/main.cpp")
+file(GLOB INC_LIST "include/*.h")
 
-add_library(${PROJECT_NAME} ${SRC_LIST})
+source_group("include" FILES ${INC_LIST})
+source_group("source" FILES ${SRC_LIST})
 
-target_link_libraries(${PROJECT_NAME} hlslparser hlsl2glsl)
-add_dependencies(${PROJECT_NAME} hlslparser hlsl2glsl)
+set(COMPILER_FILES "src/main.cpp" "src/shgen_compiler.cpp")
+
+list(REMOVE_ITEM SRC_LIST ${COMPILER_FILES})
+
+add_library(${PROJECT_NAME} ${SRC_LIST} ${INC_LIST})
+
+target_link_libraries(${PROJECT_NAME} hlslparser hlsl2glsl glsl_optimizer)
+add_dependencies(${PROJECT_NAME} hlslparser hlsl2glsl glsl_optimizer)
 
 if (BUILD_STANDALONE_SHGEN)
-	add_executable(${PROJECT_NAME}-compiler "src/main.cpp")
+   add_executable(${PROJECT_NAME}-compiler ${COMPILER_FILES})
 	target_link_libraries(${PROJECT_NAME}-compiler ${PROJECT_NAME})
 	add_dependencies(${PROJECT_NAME}-compiler ${PROJECT_NAME})
 endif(BUILD_STANDALONE_SHGEN)
