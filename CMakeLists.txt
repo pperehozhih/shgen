@@ -28,6 +28,7 @@ target_link_libraries(${PROJECT_NAME} hlslparser hlsl2glsl glsl_optimizer)
 add_dependencies(${PROJECT_NAME} hlslparser hlsl2glsl glsl_optimizer)
 
 if (BUILD_STANDALONE_SHGEN)
+   include_directories(3rd/picojson)
    add_executable(${PROJECT_NAME}-compiler ${COMPILER_FILES})
 	target_link_libraries(${PROJECT_NAME}-compiler ${PROJECT_NAME})
 	add_dependencies(${PROJECT_NAME}-compiler ${PROJECT_NAME})

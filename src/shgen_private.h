@@ -83,6 +83,7 @@ public:
 
 enum GLSLTarget {
    GLSLTarget100,
+   GLSLTargetGLES,
    GLSLTarget110,
    GLSLTarget120,
    GLSLTarget140,
@@ -92,7 +93,7 @@ enum GLSLTarget {
 
 inline GLSLTarget to_target(sgGenerator type) {
    if (sgGeneratorGLSL_ES == type || sgGeneratorGLSL_ES_OPT == type)
-      return GLSLTarget100;
+      return GLSLTargetGLES;
    if (sgGeneratorGLSL110 == type || sgGeneratorGLSL110_OPT == type)
       return GLSLTarget110;
    if (sgGeneratorGLSL120 == type || sgGeneratorGLSL120_OPT == type)

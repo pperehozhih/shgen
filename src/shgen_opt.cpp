@@ -11,9 +11,9 @@
 #include "glsl_optimizer.h"
 
 glslopt_target get_version(GLSLTarget version) {
-   if (version <= GLSLTarget100)
+   if (version == GLSLTarget100)
       return kGlslTargetOpenGL;
-   if (version > GLSLTarget100 && version <= GLSLTarget140)
+   if (version <= GLSLTarget140)
       return kGlslTargetOpenGLES20;
    return kGlslTargetOpenGLES30;
 }

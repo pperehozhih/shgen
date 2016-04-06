@@ -162,7 +162,7 @@ const char* sgGetShaderImpl(sgContextPtr context, const char* entry, sgGenerator
       case sgGeneratorGLSL120:
       case sgGeneratorGLSL140:
       case sgGeneratorGLSL300:
-         context->results.push_back(GetGLSLShader(context, "main", first_phases_result.c_str(), type, to_target(generator)));
+         context->results.push_back(GetGLSLShader(context, entry, first_phases_result.c_str(), type, to_target(generator)));
          return context->results.back().c_str();
          break;
       case sgGeneratorGLSL_ES_OPT:
@@ -170,9 +170,13 @@ const char* sgGetShaderImpl(sgContextPtr context, const char* entry, sgGenerator
       case sgGeneratorGLSL120_OPT:
       case sgGeneratorGLSL140_OPT:
       case sgGeneratorGLSL300_OPT:
+         {
+            two_phases_result = GetGLSLShader(context, entry, first_phases_result.c_str(), type, GLSLTarget100);
+         }
+         break;
       case sgGeneratorMetal:
          {
-            two_phases_result = GetGLSLShader(context, "main", first_phases_result.c_str(), type, GLSLTarget110);
+            two_phases_result = GetGLSLShader(context, entry, first_phases_result.c_str(), type, GLSLTarget110);
          }
          break;
       default:

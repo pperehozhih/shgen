@@ -279,6 +279,7 @@ namespace shgen {
             }
             technique = sgGetNextTechnique(context, technique);
          }
+         m_generator_config->EndWrite(this);
       }
    }
 }

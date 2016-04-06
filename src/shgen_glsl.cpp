@@ -201,13 +201,13 @@ namespace {
          argument = argument->nextArgument;
       }
       if(entryFunction->returnType.baseType == M4::HLSLBaseType_Float4) {
-         haveMoreOneColor = true;
-      } else if (argument->type.baseType == M4::HLSLBaseType_UserDefined) {
-         M4::HLSLStruct* structDeclaration = FindStruct(root, argument->type.typeName);
+         return result;
+      } else if (entryFunction->returnType.baseType == M4::HLSLBaseType_UserDefined) {
+         M4::HLSLStruct* structDeclaration = FindStruct(root, entryFunction->returnType.typeName);
          M4::HLSLStructField* field = structDeclaration->field;
          while (field != NULL)
          {
-            EAttribSemantic semantic = GetSemantic(argument->semantic);
+            EAttribSemantic semantic = GetSemantic(field->semantic);
             if (semantic >= EAttrSemColor0 && semantic <= EAttrSemColor3) {
                ++colorSemanticCount;
             }
