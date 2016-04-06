@@ -1,2 +1,2 @@
 # shgen
-shader generator from hlsl shader for dx 9
+shader generator from hlsl shader dx 9
