@@ -110,15 +110,16 @@ int main(int argc, char** argv) {
       std::string ouputdir;
       int index = 1;
       while (argv[index]) {
-         if (index < argc && argv[index][0] == '-' && strlen(argv[index]) > 1) {
-            switch (argv[index][0]) {
+         const char* arg = argv[index];
+         if (index < argc && arg[0] == '-' && strlen(arg) > 1) {
+            switch (arg[1]) {
                case 'i':
                case 'I':
                   inputfile = argv[index + 1];
                   break;
                case 'o':
                case 'O':
-                  inputfile = argv[index + 1];
+                  ouputdir = argv[index + 1];
                   break;
                default:
                   break;
