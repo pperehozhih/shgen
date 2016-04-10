@@ -64,7 +64,7 @@ struct GeneratorConfigWriterImpl : public shgen::compiler::GeneratorConfigWriter
                             const std::string& source, unsigned format,
                             shgen::compiler::Generator::ShaderType shader) {
       std::string file_name = GenerateFileName(tehnique, pass, shader, format);
-      m_config[tehnique][pass]["file_name." + get_shader_lang(format) + "." + to_string(shader)] = file_name;
+//      m_config[tehnique][pass]["file_name." + get_shader_lang(format) + "." + to_string(shader)] = file_name;
       generator->WriteTextToContainer(file_name, source);
    }
    virtual void EndWrite(shgen::compiler::Generator* generator){
