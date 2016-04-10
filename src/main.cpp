@@ -99,7 +99,9 @@ struct GeneratorConfigWriterImpl : public shgen::compiler::GeneratorConfigWriter
          root.push_back(picojson::value(technique_json));
       }
       std::stringstream str;
-      str << picojson::value(root);
+      picojson::object _root_object;
+      _root_object["config"] = picojson::value(root);
+      str << picojson::value(_root_object);
       generator->WriteTextToContainer("config.json", str.str());
    }
 };
