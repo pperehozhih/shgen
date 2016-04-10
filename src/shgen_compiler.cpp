@@ -221,7 +221,7 @@ namespace shgen {
                if (m_outputFormat & GeneratorTypeGL3) {
                   WriteShader(this, context,
                               vertex_entry.c_str(),
-                              sgGeneratorGLSL300_OPT,
+                              sgGeneratorGLSL300,
                               sgShaderTypeVertex,
                               GeneratorTypeGL3,
                               ShaderTypeVertex,
@@ -230,7 +230,7 @@ namespace shgen {
                   /******************************************************************/
                   WriteShader(this, context,
                               fragment_entry.c_str(),
-                              sgGeneratorGLSL300_OPT,
+                              sgGeneratorGLSL300,
                               sgShaderTypeFrag,
                               GeneratorTypeGL3,
                               ShaderTypeFragment,
