@@ -183,7 +183,7 @@ namespace shgen {
                if (m_outputFormat & GeneratorTypeGL){
                   WriteShader(this, context,
                               vertex_entry.c_str(),
-                              sgGeneratorGLSL110_OPT,
+                              sgGeneratorGLSL110,
                               sgShaderTypeVertex,
                               GeneratorTypeGL,
                               ShaderTypeVertex,
@@ -192,7 +192,7 @@ namespace shgen {
                   /******************************************************************/
                   WriteShader(this, context,
                               fragment_entry.c_str(),
-                              sgGeneratorGLSL110_OPT,
+                              sgGeneratorGLSL110,
                               sgShaderTypeFrag,
                               GeneratorTypeGL,
                               ShaderTypeFragment,
@@ -202,7 +202,7 @@ namespace shgen {
                if (m_outputFormat & GeneratorTypeGL2){
                   WriteShader(this, context,
                               vertex_entry.c_str(),
-                              sgGeneratorGLSL120_OPT,
+                              sgGeneratorGLSL120,
                               sgShaderTypeVertex,
                               GeneratorTypeGL2,
                               ShaderTypeVertex,
@@ -211,7 +211,7 @@ namespace shgen {
                   /******************************************************************/
                   WriteShader(this, context,
                               fragment_entry.c_str(),
-                              sgGeneratorGLSL120_OPT,
+                              sgGeneratorGLSL120,
                               sgShaderTypeFrag,
                               GeneratorTypeGL2,
                               ShaderTypeFragment,
