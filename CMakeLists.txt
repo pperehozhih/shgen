@@ -18,7 +18,7 @@ file(GLOB INC_SHGEN_LIST "include/*.h")
 source_group("include" FILES ${INC_SHGEN_LIST})
 source_group("source" FILES ${SRC_SHGEN_LIST})
 
-set(COMPILER_FILES "src/main.cpp" "src/shgen_compiler.cpp")
+set(COMPILER_FILES "src/main.cpp")
 
 list(REMOVE_ITEM SRC_SHGEN_LIST ${COMPILER_FILES})
 
@@ -33,4 +33,3 @@ if (BUILD_STANDALONE_SHGEN)
 	target_link_libraries(${PROJECT_NAME}-compiler ${PROJECT_NAME})
 	add_dependencies(${PROJECT_NAME}-compiler ${PROJECT_NAME})
 endif(BUILD_STANDALONE_SHGEN)
-
