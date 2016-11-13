@@ -10,6 +10,7 @@ include_directories(include
 					3rd/hlslparser/src
 					3rd/hlsl2glsl/include
 					3rd/glsl-optimizer/src/glsl
+               		3rd/picojson
 					)
 aux_source_directory(src SRC_SHGEN_LIST)
 
@@ -22,14 +23,18 @@ set(COMPILER_FILES "src/main.cpp")
 
 list(REMOVE_ITEM SRC_SHGEN_LIST ${COMPILER_FILES})
 
-add_library(${PROJECT_NAME} ${SRC_SHGEN_LIST} ${INC_SHGEN_LIST})
+if (BUILD_SHARED_SHGEN)
+	add_library(${PROJECT_NAME} SHARED ${SRC_SHGEN_LIST} ${INC_SHGEN_LIST})
+else()
+	add_library(${PROJECT_NAME} ${SRC_SHGEN_LIST} ${INC_SHGEN_LIST})
+endif(BUILD_SHARED_SHGEN)
 
 target_link_libraries(${PROJECT_NAME} hlslparser hlsl2glsl glsl_optimizer)
 add_dependencies(${PROJECT_NAME} hlslparser hlsl2glsl glsl_optimizer)
 
 if (BUILD_STANDALONE_SHGEN)
-   include_directories(3rd/picojson)
-   add_executable(${PROJECT_NAME}-compiler ${COMPILER_FILES})
+	include_directories(3rd/picojson)
+   	add_executable(${PROJECT_NAME}-compiler ${COMPILER_FILES})
 	target_link_libraries(${PROJECT_NAME}-compiler ${PROJECT_NAME})
 	add_dependencies(${PROJECT_NAME}-compiler ${PROJECT_NAME})
 endif(BUILD_STANDALONE_SHGEN)
