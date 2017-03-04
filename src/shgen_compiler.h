@@ -18,12 +18,12 @@ namespace shgen {
       class Generator {
       public:
          enum GeneratorType {
-            GeneratorTypeHLSL = 1,
-            GeneratorTypeGL = (1 << 1),
-            GeneratorTypeGL2 = (1 << 2),
-            GeneratorTypeGL3 = (1 << 3),
-            GeneratorTypeGLES = (1 << 4),
-            GeneratorTypeMetal = (1 << 5)
+            GeneratorTypeHLSL = (1 << 1),
+            GeneratorTypeGL = (1 << 2),
+            GeneratorTypeGL2 = (1 << 3),
+            GeneratorTypeGL3 = (1 << 4),
+            GeneratorTypeGLES = (1 << 5),
+            GeneratorTypeMetal = (1 << 6)
          };
          enum ShaderType {
             ShaderTypeVertex,

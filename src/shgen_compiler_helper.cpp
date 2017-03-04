@@ -10,7 +10,9 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#ifdef JSON_CONFIG
 #include <picojson.h>
+#endif
 #include "shgen_compiler_helper.h"
 
 namespace shgen {
@@ -48,6 +50,7 @@ namespace shgen {
       }
       
       void GeneratorConfigWriterImpl::EndWrite(shgen::compiler::Generator* generator){
+#ifdef JSON_CONFIG
          picojson::array root;
          for (technique_container::iterator techniquer_iter = m_config.begin();
               techniquer_iter != m_config.end();
@@ -82,8 +85,25 @@ namespace shgen {
          picojson::object _root_object;
          _root_object["config"] = picojson::value(root);
          str << picojson::value(_root_object);
-         generator->WriteTextToContainer("config.json", str.str());
+#else
+         std::stringstream str;
+         for (technique_container::iterator techniquer_iter = m_config.begin();
+              techniquer_iter != m_config.end();
+              ++techniquer_iter){
+            str << "[" << techniquer_iter->first << "]" << std::endl;
+            for(pass::iterator pass_iter = techniquer_iter->second.begin();
+                pass_iter != techniquer_iter->second.end();
+                ++pass_iter) {
+               std::string pass_name = pass_iter->first;
+               for (pass_param::iterator pass_param_iter = pass_iter->second.begin();
+                    pass_param_iter != pass_iter->second.end();
+                    ++pass_param_iter){
+                  str << pass_name << "." << pass_param_iter->first << "=" << pass_param_iter->second << std::endl;
+               }
+            }
+         }
+#endif
+         generator->WriteTextToContainer("config.ini", str.str());
       }
-      
    }
 }

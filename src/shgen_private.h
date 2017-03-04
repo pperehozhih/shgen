@@ -9,7 +9,7 @@
 #ifndef shgen_private_h
 #define shgen_private_h
 
-#include <hlslparser.h>
+#include <HLSLParser.h>
 #include <Engine/Allocator.h>
 
 struct sgContextParser {
