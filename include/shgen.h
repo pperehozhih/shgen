@@ -10,11 +10,19 @@ extern "C" {
 
    struct sgPass;
 
+   struct sgAttribute;
+
+   struct sgUniforms;
+
    typedef sgContext* sgContextPtr;
 
    typedef sgTechnique* sgTechniquePtr;
 
    typedef sgPass* sgPassPtr;
+   
+   typedef sgAttribute* sgAttributePtr;
+
+   typedef sgUniforms* sgUniformsPtr;
 
    sgContextPtr sgContextInit();
 
@@ -66,6 +74,22 @@ extern "C" {
    const char* sgGetPassParamName(sgPassPtr pass, int index);
 
    const char* sgGetPassParamValue(sgPassPtr pass, int index);
+
+   sgAttributePtr sgGetAttrubyteByEntry(sgContextPtr context, const char* entry);
+
+   int sgGetAttributeCount(sgAttributePtr attribute);
+
+   const char* sgGetAttributeNameByLocation(sgAttributePtr attribute, int location);
+
+   int sgGetAttributeSizeByLocation(sgAttributePtr attribute, int location);
+
+   sgUniformsPtr sgGetUniformsByEntery(sgContextPtr context, const char* entry);
+
+   int sgGetUniformsCount(sgUniformsPtr uniforms);
+
+   int sgGetUniformsSize(sgUniformsPtr uniforms, int index);
+
+   const char* sgGetUniformsName(sgUniformsPtr uniforms, int index);
 
    const char* sgGetShader(sgContextPtr context, const char* entry, sgGenerator generator, sgShaderType type);
 

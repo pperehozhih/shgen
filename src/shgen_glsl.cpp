@@ -9,16 +9,11 @@
 #include "shgen.h"
 #include <string>
 #include <sstream>
-#include <hlsl2glsl.h>
+#include <stack>
 #include "shgen_private.h"
 
 namespace {
    bool hlsl_inited = false;
-   
-   struct sgAttribute{
-      std::vector<EAttribSemantic>  sematic;
-      std::vector<const char*>      names;
-   };
    
    bool ___inited() {
       if (!hlsl_inited) {
@@ -36,7 +31,6 @@ namespace {
       hlsl_inited = false;
       return true;
    }
-   sgAttribute GetAttribute(sgContextPtr context, const char* entry, bool &haveMoreOneColor);
    
    std::string GetShader(sgContextPtr context, ShHandle handle, const char* entry, const char* shader, GLSLTarget version) {
       ETargetVersion vers = ETargetGLSL_ES_100;
@@ -162,6 +156,34 @@ namespace {
       }
       return EAttrSemNone;
    }
+   size_t GetAttributeSize(EAttribSemantic type){
+      switch(type){
+         case EAttrSemPosition:return 16;
+         case EAttrSemPosition1:return 16;
+         case EAttrSemPosition2:return 16;
+         case EAttrSemPosition3:return 16;
+         case EAttrSemNormal:return 16;
+         case EAttrSemNormal1:return 16;
+         case EAttrSemNormal2:return 16;
+         case EAttrSemNormal3:return 16;
+         case EAttrSemColor0:return 16;
+         case EAttrSemColor1:return 16;
+         case EAttrSemColor2:return 16;
+         case EAttrSemColor3:return 16;
+         case EAttrSemTex0:return 8;
+         case EAttrSemTex1:return 8;
+         case EAttrSemTex2:return 8;
+         case EAttrSemTex3:return 8;
+         case EAttrSemTex4:return 8;
+         case EAttrSemTex5:return 8;
+         case EAttrSemTex6:return 8;
+         case EAttrSemTex7:return 8;
+         case EAttrSemTex8:return 8;
+         case EAttrSemTex9:return 8;
+         default:
+            return 0;
+      }
+   }
 
    void FillStructure(sgAttribute &result, const M4::HLSLType& type, M4::HLSLRoot* root) {
       if (type.baseType == M4::HLSLBaseType_UserDefined) {
@@ -174,49 +196,143 @@ namespace {
             } else {
                result.names.push_back(field->name);
                result.sematic.push_back(GetSemantic(field->semantic));
+               result.size.push_back(GetAttributeSize(result.sematic.back()));
             }
             field = field->nextField;
          }
       }
    }
-   
-   sgAttribute GetAttribute(sgContextPtr context, const char* entry, bool& haveMoreOneColor) {
-      sgAttribute result;
-      M4::HLSLRoot *root = context->current_context->tree.GetRoot();
-      M4::HLSLFunction* entryFunction = FindFunction(root, entry);
-      if (entryFunction == 0)
-         return result;
-      haveMoreOneColor = false;
-      M4::HLSLArgument* argument = entryFunction->argument;
-      int colorSemanticCount = 0;
-      while (argument != NULL)
-      {
-         if (argument->type.baseType == M4::HLSLBaseType_UserDefined) {
-            FillStructure(result, argument->type, root);
-         } else {
-            result.names.push_back(argument->name);
-            EAttribSemantic semantic = GetSemantic(argument->semantic);
-            result.sematic.push_back(semantic);
-         }
-         argument = argument->nextArgument;
-      }
-      if(entryFunction->returnType.baseType == M4::HLSLBaseType_Float4) {
-         return result;
-      } else if (entryFunction->returnType.baseType == M4::HLSLBaseType_UserDefined) {
-         M4::HLSLStruct* structDeclaration = FindStruct(root, entryFunction->returnType.typeName);
-         M4::HLSLStructField* field = structDeclaration->field;
-         while (field != NULL)
-         {
-            EAttribSemantic semantic = GetSemantic(field->semantic);
-            if (semantic >= EAttrSemColor0 && semantic <= EAttrSemColor3) {
-               ++colorSemanticCount;
-            }
-            field = field->nextField;
-         }
-         haveMoreOneColor = colorSemanticCount > 1;
-      }
+}
+
+sgAttribute GetAttribute(sgContextPtr context, const char* entry, bool& haveMoreOneColor) {
+   sgAttribute result;
+   M4::HLSLRoot *root = context->current_context->tree.GetRoot();
+   M4::HLSLFunction* entryFunction = FindFunction(root, entry);
+   if (entryFunction == 0)
       return result;
+   haveMoreOneColor = false;
+   M4::HLSLArgument* argument = entryFunction->argument;
+   int colorSemanticCount = 0;
+   while (argument != NULL)
+   {
+      if (argument->type.baseType == M4::HLSLBaseType_UserDefined) {
+         FillStructure(result, argument->type, root);
+      } else {
+         result.names.push_back(argument->name);
+         EAttribSemantic semantic = GetSemantic(argument->semantic);
+         result.sematic.push_back(semantic);
+         result.size.push_back(GetAttributeSize(result.sematic.back()));
+      }
+      argument = argument->nextArgument;
    }
+   if(entryFunction->returnType.baseType == M4::HLSLBaseType_Float4) {
+      return result;
+   } else if (entryFunction->returnType.baseType == M4::HLSLBaseType_UserDefined) {
+      M4::HLSLStruct* structDeclaration = FindStruct(root, entryFunction->returnType.typeName);
+      M4::HLSLStructField* field = structDeclaration->field;
+      while (field != NULL)
+      {
+         EAttribSemantic semantic = GetSemantic(field->semantic);
+         if (semantic >= EAttrSemColor0 && semantic <= EAttrSemColor3) {
+            ++colorSemanticCount;
+         }
+         field = field->nextField;
+      }
+      haveMoreOneColor = colorSemanticCount > 1;
+   }
+   return result;
+}
+
+std::vector<sgUniform> GetAllUniforms(sgContextPtr context) {
+   std::vector<sgUniform> result;
+   M4::HLSLRoot *root = context->current_context->tree.GetRoot();
+   M4::HLSLStatement* statement = root->statement;
+   while (statement != NULL)
+   {
+      if (statement->nodeType == M4::HLSLNodeType_Declaration)
+      {
+         M4::HLSLDeclaration* declaration = static_cast<M4::HLSLDeclaration*>(statement);
+         while(declaration) {
+            sgUniform added;
+            added.name = declaration->name;
+            added.type = (sgUniform::sgUniformType)declaration->type.baseType;
+            added.UpdateSize();
+            if (added.size >= 0) {
+               result.push_back(added);
+            }
+            declaration = declaration->nextDeclaration;
+         }
+      } else if (statement->nodeType == M4::HLSLNodeType_Struct) {
+         M4::HLSLStruct* struct_type = static_cast<M4::HLSLStruct*>(statement);
+         if (struct_type){
+            sgUniform added_root;
+            added_root.name = struct_type->name;
+            added_root.type = sgUniform::sgUniformTypeStruct;
+            M4::HLSLStructField* field = struct_type->field;
+            while(field) {
+               sgUniform added;
+               added.name = field->name;
+               added.type = (sgUniform::sgUniformType)field->type.baseType;
+               added.UpdateSize();
+               if (added.size >= 0) {
+                  added_root.childs.push_back(added);
+               }
+               field = field->nextField;
+            }
+            added_root.UpdateSize();
+            if (added_root.size >= 0) {
+               result.push_back(added_root);
+            }
+         }
+      }
+      statement = statement->nextStatement;
+   }
+   return result;
+}
+
+void UpdateUniformMap(sgContextPtr context, std::map<int, sgUniform> &map, M4::HLSLFunction* func)
+{
+   const M4::Array<const char*> result = context->current_context->parser.GetUseGlobalVariableInFunction(func);
+   for(int i = 0; i < result.GetSize(); i++)
+   {
+      for (int u_index = 0; u_index < context->all_uniforms.size(); u_index++) {
+         if (context->all_uniforms[u_index].name == result[i]){
+            map[u_index] = context->all_uniforms[u_index];
+            break;
+         }
+      }
+   }
+}
+
+std::vector<M4::HLSLFunction*> GetUsedGlobalFunction(sgContextPtr context, M4::HLSLFunction* func, M4::HLSLRoot *root)
+{
+   std::vector<M4::HLSLFunction*> result;
+   const M4::Array<const char*> functions = context->current_context->parser.GetUseGlobalFunctionInFunction(func);
+   for(int i = 0; i < functions.GetSize(); i++)
+   {
+      M4::HLSLFunction* function = FindFunction(root, functions[i]);
+      if (function) {
+         result.push_back(function);
+      }
+   }
+   return result;
+}
+
+std::map<int, sgUniform> GetUniform(sgContextPtr context, const char* entry) {
+   std::map<int, sgUniform> result;
+   M4::HLSLRoot *root = context->current_context->tree.GetRoot();
+   M4::HLSLFunction* entryFunction = FindFunction(root, entry);
+   if (entryFunction == 0)
+      return result;
+   UpdateUniformMap(context, result, entryFunction);
+   std::vector<M4::HLSLFunction*> functions = GetUsedGlobalFunction(context, entryFunction, root);
+   for(M4::HLSLFunction* function : functions) {
+      std::map<int, sgUniform> other_result = GetUniform(context, function->name);
+      for(std::pair<int, sgUniform> kvp : other_result) {
+         result[kvp.first] = kvp.second;
+      }
+   }
+   return result;
 }
 
 std::string GetGLSLShaderFrag(sgContextPtr context, const char* entry, const char* shader, GLSLTarget version) {

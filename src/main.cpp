@@ -55,6 +55,8 @@ int main(int argc, char** argv) {
                         outputformat |= shgen::compiler::Generator::GeneratorTypeGL3;
                      } else if (token == "metal") {
                         outputformat |= shgen::compiler::Generator::GeneratorTypeMetal;
+                     } else if (token == "hlsl") {
+                        outputformat |= shgen::compiler::Generator::GeneratorTypeHLSL;
                      }
                   }
                }

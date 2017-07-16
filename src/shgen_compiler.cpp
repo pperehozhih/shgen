@@ -13,6 +13,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <queue>
 
 namespace {
    void CleanDirectory(const char* directory) {
@@ -160,6 +161,54 @@ namespace shgen {
                                                name, value);
                   }
                   param_count--;
+               }
+               sgAttributePtr attribute = sgGetAttrubyteByEntry(context, vertex_entry.c_str());
+               int attribute_count = sgGetAttributeCount(attribute);
+               std::stringstream attribute_stream;
+               while(attribute_count >= 0) {
+                  attribute_count--;
+                  const char* attribute_name = sgGetAttributeNameByLocation(attribute, attribute_count);
+                  int attribute_size = sgGetAttributeSizeByLocation(attribute, attribute_count);
+                  if (attribute_name) {
+                     if (attribute_stream.str().size() > 0){
+                        attribute_stream << ";";
+                     }
+                     attribute_stream << attribute_name << ":" << attribute_count << ":" << attribute_size;
+                  }
+               }
+               if (attribute_stream.str().size() != 0) {
+                  m_generator_config->Write(this,
+                                            sgGetTechniqueName(technique),
+                                            sgGetPassName(pass),
+                                            "attribute", attribute_stream.str());
+               }
+               {
+                  std::queue<std::string> functions;
+                  std::stringstream uniform_stream;
+                  functions.push(fragment_entry);
+                  functions.push(vertex_entry);
+                  while(functions.empty() == false) {
+                     sgUniformsPtr uniforms = sgGetUniformsByEntery(context, functions.front().c_str());
+                     int uniform_count = sgGetUniformsCount(uniforms);
+                     while(uniform_count >= 0) {
+                        uniform_count--;
+                        int uniform_size = sgGetUniformsSize(uniforms, uniform_count);
+                        const char* uniform_name = sgGetUniformsName(uniforms, uniform_count);
+                        if (uniform_name){
+                           if (uniform_stream.str().size() > 0){
+                              uniform_stream << ";";
+                           }
+                           uniform_stream << uniform_name << ":" << uniform_count << ":" << uniform_size;
+                        }
+                     }
+                     functions.pop();
+                  }
+                  if (uniform_stream.str().size() != 0) {
+                     m_generator_config->Write(this,
+                                               sgGetTechniqueName(technique),
+                                               sgGetPassName(pass),
+                                               "uniform", uniform_stream.str());
+                  }
                }
                if (m_outputFormat & GeneratorTypeHLSL) {
                   WriteShader(this, context,

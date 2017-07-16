@@ -72,6 +72,7 @@ extern "C" int sgReadShader(sgContextPtr context, const char* data) {
    }
    context->current_effect.clear();
    context->current_effect = data;
+   context->all_uniforms = GetAllUniforms(context);
    return sgErrorOk;
 }
 
@@ -125,6 +126,106 @@ extern "C" void sgSetName(sgContextPtr context, const char* name) {
    if (name == 0)
       return;
    context->current_name = name;
+}
+
+sgAttributePtr sgGetAttrubyteByEntryImpl(sgContextPtr context, const char* entry) {
+   if (context->attributes.find(entry) == context->attributes.end()) {
+      bool haveMoreOneColor = false;
+      context->attributes[entry] = GetAttribute(context, entry, haveMoreOneColor);
+   }
+   return &(context->attributes[entry]);
+}
+
+extern "C" sgAttributePtr sgGetAttrubyteByEntry(sgContextPtr context, const char* entry) {
+   return sgGetAttrubyteByEntryImpl(context, entry);
+}
+
+int sgGetAttributeCountImpl(sgAttributePtr attribute) {
+   if (attribute == nullptr){
+      return -1;
+   }
+   return attribute->names.size();
+}
+
+extern "C" int sgGetAttributeCount(sgAttributePtr attribute){
+   return sgGetAttributeCountImpl(attribute);
+}
+
+const char* sgGetAttributeNameByLocationImpl(sgAttributePtr attribute, int location) {
+   if (attribute == nullptr){
+      return nullptr;
+   }
+   if (location < 0 || location >= attribute->names.size()){
+      return nullptr;
+   }
+   return attribute->names[location];
+}
+
+extern "C" const char* sgGetAttributeNameByLocation(sgAttributePtr attribute, int location) {
+   return sgGetAttributeNameByLocationImpl(attribute, location);
+}
+
+int sgGetAttributeSizeByLocationImpl(sgAttributePtr attribute, int location){
+   if (attribute == nullptr){
+      return 0;
+   }
+   if (location < 0 || location >= attribute->names.size()){
+      return 0;
+   }
+   return attribute->size[location];
+}
+
+extern "C" int sgGetAttributeSizeByLocation(sgAttributePtr attribute, int location){
+   return sgGetAttributeSizeByLocationImpl(attribute, location);
+}
+
+sgUniformsPtr sgGetUniformsByEnteryImpl(sgContextPtr context, const char* entry) {
+   if (context->uniforms.find(entry) == context->uniforms.end()) {
+      sgUniforms added;
+      std::map<int, sgUniform> result = GetUniform(context, entry);
+      for (std::pair<int, sgUniform> kvp : result) {
+         added.uniforms.push_back(kvp.second);
+      }
+      context->uniforms[entry] = added;
+   }
+   return &(context->uniforms[entry]);
+}
+
+extern "C" sgUniformsPtr sgGetUniformsByEntery(sgContextPtr context, const char* entry) {
+   return sgGetUniformsByEnteryImpl(context, entry);
+}
+
+int sgGetUniformsCountImpl(sgUniformsPtr uniforms){
+   if (uniforms == nullptr){
+      return -1;
+   }
+   return uniforms->uniforms.size();
+}
+
+extern "C" int sgGetUniformsCount(sgUniformsPtr uniforms){
+   return sgGetUniformsCountImpl(uniforms);
+}
+
+int sgGetUniformsSizeImpl(sgUniformsPtr uniforms, int index){
+   if (uniforms == nullptr || index < 0 || index >= uniforms->uniforms.size()){
+      return -1;
+   }
+   return uniforms->uniforms[index].size;
+}
+
+extern "C" int sgGetUniformsSize(sgUniformsPtr uniforms, int index){
+   return sgGetUniformsSizeImpl(uniforms, index);
+}
+
+const char* sgGetUniformsNameImpl(sgUniformsPtr uniforms, int index) {
+   if (uniforms == nullptr || index < 0 || index >= uniforms->uniforms.size()){
+      return nullptr;
+   }
+   return uniforms->uniforms[index].name.c_str();
+}
+
+extern "C" const char* sgGetUniformsName(sgUniformsPtr uniforms, int index){
+   return sgGetUniformsNameImpl(uniforms, index);
 }
 
 const char* sgGetShaderImpl(sgContextPtr context, const char* entry, sgGenerator generator, sgShaderType type) {
