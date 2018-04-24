@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
       int index = 1;
       while (argv[index]) {
          const char* arg = argv[index];
-         if (index < argc && arg[0] == '-' && strlen(arg) > 1) {
+         if (index < (argc - 1) && arg[0] == '-' && strlen(arg) > 1) {
             switch (arg[1]) {
                case 'i':
                case 'I':

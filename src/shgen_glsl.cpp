@@ -31,7 +31,9 @@ namespace {
       hlsl_inited = false;
       return true;
    }
-   
+
+   M4::HLSLFunction* FindFunction(M4::HLSLRoot* root, const char* name);
+
    std::string GetShader(sgContextPtr context, ShHandle handle, const char* entry, const char* shader, GLSLTarget version) {
       ETargetVersion vers = ETargetGLSL_ES_100;
       switch (version) {
@@ -48,12 +50,19 @@ namespace {
             vers = ETargetGLSL_140;
             break;
          case GLSLTarget300:
-            vers = ETargetGLSL_ES_300;
+            vers = ETargetGLSL_330;
             break;
+            
          default:
             break;
       }
       unsigned option = ETranslateOpPropogateOriginalAttribNames | ETranslateOpForceBuiltinAttribNames;
+      M4::HLSLRoot *root = context->current_context->tree.GetRoot();
+      M4::HLSLFunction* entryFunction = FindFunction(root, entry);
+      if (entryFunction == nullptr)
+      {
+         throw GenerateException(std::string("Not found entry -- ") + std::string(entry));
+      }
       {
          bool haveMoreOneColor = false;
          sgAttribute attr = GetAttribute(context, entry, haveMoreOneColor);
@@ -134,6 +143,26 @@ namespace {
       SemanticPair("COLOR1", EAttrSemColor1),
       SemanticPair("COLOR2", EAttrSemColor2),
       SemanticPair("COLOR3", EAttrSemColor3),
+      SemanticPair("TANGENT", EAttrSemTangent),
+      SemanticPair("TANGENT0", EAttrSemTangent),
+      SemanticPair("TANGENT1", EAttrSemTangent1),
+      SemanticPair("TANGENT2", EAttrSemTangent2),
+      SemanticPair("TANGENT3", EAttrSemTangent3),
+      SemanticPair("BINORMAL", EAttrSemBinormal),
+      SemanticPair("BINORMAL0", EAttrSemBinormal),
+      SemanticPair("BINORMAL1", EAttrSemBinormal1),
+      SemanticPair("BINORMAL2", EAttrSemBinormal2),
+      SemanticPair("BINORMAL3", EAttrSemBinormal3),
+      SemanticPair("BLENDWEIGHT", EAttrSemBlendWeight),
+      SemanticPair("BLENDWEIGHT0", EAttrSemBlendWeight),
+      SemanticPair("BLENDWEIGHT1", EAttrSemBlendWeight1),
+      SemanticPair("BLENDWEIGHT2", EAttrSemBlendWeight2),
+      SemanticPair("BLENDWEIGHT3", EAttrSemBlendWeight3),
+      SemanticPair("BLENDINDICES", EAttrSemBlendIndices),
+      SemanticPair("BLENDINDICES0", EAttrSemBlendIndices),
+      SemanticPair("BLENDINDICES1", EAttrSemBlendIndices1),
+      SemanticPair("BLENDINDICES2", EAttrSemBlendIndices2),
+      SemanticPair("BLENDINDICES3", EAttrSemBlendIndices3),
       SemanticPair("TEXCOORD", EAttrSemTex0),
       SemanticPair("TEXCOORD0", EAttrSemTex0),
       SemanticPair("TEXCOORD1", EAttrSemTex1),
@@ -258,6 +287,23 @@ std::vector<sgUniform> GetAllUniforms(sgContextPtr context) {
             added.type = (sgUniform::sgUniformType)declaration->type.baseType;
             added.UpdateSize();
             if (added.size >= 0) {
+               if (declaration->type.array && declaration->type.arraySize){
+                  int offset_begin = declaration->bufferOffset;
+                  int offset_end = declaration->type.arraySize->bufferOffset;
+                  if (offset_begin >= 0 && offset_end >= 0) {
+                     const char* data_begin = &(context->current_effect[offset_begin]);
+                     const char* data_end = &(context->current_effect[offset_end]);
+                     int count = 0;
+                     while (data_begin != data_end) {
+                        if (std::isdigit(data_begin[0])){
+                           count *= 10;
+                           count += data_begin[0] - '0';
+                        }
+                        data_begin++;
+                     }
+                     added.size *= count;
+                  }
+               }
                result.push_back(added);
             }
             declaration = declaration->nextDeclaration;
