@@ -64,6 +64,7 @@ extern "C" int sgReadShader(sgContextPtr context, const char* data) {
       return sgErrorParse;
    }
    M4::HLSLStatement* statment = root->statement;
+   context->techniques.clear();
    while (statment) {
       if (statment->nodeType == M4::HLSLNodeType_Technique){
          context->techniques.push_back(std::shared_ptr<sgTechnique>(new sgTechnique((M4::HLSLTechnique*)statment)));
