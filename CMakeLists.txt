@@ -19,7 +19,13 @@ file(GLOB INC_SHGEN_LIST "include/*.h")
 source_group("include" FILES ${INC_SHGEN_LIST})
 source_group("source" FILES ${SRC_SHGEN_LIST})
 
-set(COMPILER_FILES "src/main.cpp")
+set(COMPILER_FILES
+	src/main.cpp
+	src/shgen_compiler.cpp
+	src/shgen_compiler.h
+	src/shgen_compiler_helper.cpp
+	src/shgen_compiler_helper.h
+)
 
 list(REMOVE_ITEM SRC_SHGEN_LIST ${COMPILER_FILES})
 
@@ -28,8 +34,11 @@ if (BUILD_SHARED_SHGEN)
 else()
 	add_library(${PROJECT_NAME} ${SRC_SHGEN_LIST} ${INC_SHGEN_LIST})
 endif(BUILD_SHARED_SHGEN)
-
-target_link_libraries(${PROJECT_NAME} hlslparser hlsl2glsl glsl_optimizer)
+if (WIN32)
+	target_link_libraries(${PROJECT_NAME} hlslparser hlsl2glsl glsl_optimizer mesa glcpp-library)
+else()
+	target_link_libraries(${PROJECT_NAME} hlslparser hlsl2glsl glsl_optimizer)
+endif()
 add_dependencies(${PROJECT_NAME} hlslparser hlsl2glsl glsl_optimizer)
 
 if (BUILD_STANDALONE_SHGEN)

@@ -10,6 +10,8 @@
 #include <string>
 #include <sstream>
 #include <stack>
+#include <cctype>
+#include <functional>
 #include "shgen_private.h"
 
 namespace {
@@ -75,6 +77,7 @@ namespace {
          }
       }
       if (!Hlsl2Glsl_Parse(handle, shader, vers, 0, 0)) {
+         Hlsl2Glsl_Parse(handle, shader, vers, 0, 0);
          Hlsl2Glsl_DestructCompiler(handle);
          throw GenerateException(std::string("Cannot parse HLSL shader:") + Hlsl2Glsl_GetInfoLog(handle));
       }

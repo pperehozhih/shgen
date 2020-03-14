@@ -1,6 +1,12 @@
 #ifndef SHGEN_INCLUDED_H
 #define SHGEN_INCLUDED_H
 
+#ifdef _WIN32
+#define SHGEN_EXPORT __declspec (dllexport)
+#else
+#define SHGEN_EXPORT
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,7 +30,7 @@ extern "C" {
 
    typedef sgUniforms* sgUniformsPtr;
 
-   sgContextPtr sgContextInit();
+   SHGEN_EXPORT sgContextPtr sgContextInit();
 
    enum sgError {
       sgErrorOk = 0,
@@ -53,49 +59,49 @@ extern "C" {
       sgShaderTypeFrag
    };
 
-   int sgReadShader(sgContextPtr context, const char* data);
+   SHGEN_EXPORT int sgReadShader(sgContextPtr context, const char* data);
 
-   void sgSetName(sgContextPtr context, const char* name);
+   SHGEN_EXPORT void sgSetName(sgContextPtr context, const char* name);
 
-   sgTechniquePtr sgGetFirstTechnique(sgContextPtr context);
+   SHGEN_EXPORT sgTechniquePtr sgGetFirstTechnique(sgContextPtr context);
 
-   sgTechniquePtr sgGetNextTechnique(sgContextPtr context, sgTechniquePtr technique);
+   SHGEN_EXPORT sgTechniquePtr sgGetNextTechnique(sgContextPtr context, sgTechniquePtr technique);
 
-   sgPassPtr sgGetFirstPass(sgTechniquePtr technique);
+   SHGEN_EXPORT sgPassPtr sgGetFirstPass(sgTechniquePtr technique);
 
-   sgPassPtr sgGetNextPass(sgTechniquePtr technique, sgPassPtr pass);
+   SHGEN_EXPORT sgPassPtr sgGetNextPass(sgTechniquePtr technique, sgPassPtr pass);
 
-   const char* sgGetTechniqueName(sgTechniquePtr technique);
+   SHGEN_EXPORT const char* sgGetTechniqueName(sgTechniquePtr technique);
 
-   const char* sgGetPassName(sgPassPtr pass);
+   SHGEN_EXPORT const char* sgGetPassName(sgPassPtr pass);
 
-   int sgGetPassParamCount(sgPassPtr pass);
+   SHGEN_EXPORT int sgGetPassParamCount(sgPassPtr pass);
 
-   const char* sgGetPassParamName(sgPassPtr pass, int index);
+   SHGEN_EXPORT const char* sgGetPassParamName(sgPassPtr pass, int index);
 
-   const char* sgGetPassParamValue(sgPassPtr pass, int index);
+   SHGEN_EXPORT const char* sgGetPassParamValue(sgPassPtr pass, int index);
 
-   sgAttributePtr sgGetAttrubyteByEntry(sgContextPtr context, const char* entry);
+   SHGEN_EXPORT sgAttributePtr sgGetAttrubyteByEntry(sgContextPtr context, const char* entry);
 
-   int sgGetAttributeCount(sgAttributePtr attribute);
+   SHGEN_EXPORT int sgGetAttributeCount(sgAttributePtr attribute);
 
-   const char* sgGetAttributeNameByLocation(sgAttributePtr attribute, int location);
+   SHGEN_EXPORT const char* sgGetAttributeNameByLocation(sgAttributePtr attribute, int location);
 
-   int sgGetAttributeSizeByLocation(sgAttributePtr attribute, int location);
+   SHGEN_EXPORT int sgGetAttributeSizeByLocation(sgAttributePtr attribute, int location);
 
-   sgUniformsPtr sgGetUniformsByEntery(sgContextPtr context, const char* entry);
+   SHGEN_EXPORT sgUniformsPtr sgGetUniformsByEntery(sgContextPtr context, const char* entry);
 
-   int sgGetUniformsCount(sgUniformsPtr uniforms);
+   SHGEN_EXPORT int sgGetUniformsCount(sgUniformsPtr uniforms);
 
-   int sgGetUniformsSize(sgUniformsPtr uniforms, int index);
+   SHGEN_EXPORT int sgGetUniformsSize(sgUniformsPtr uniforms, int index);
 
-   const char* sgGetUniformsName(sgUniformsPtr uniforms, int index);
+   SHGEN_EXPORT const char* sgGetUniformsName(sgUniformsPtr uniforms, int index);
 
-   const char* sgGetShader(sgContextPtr context, const char* entry, sgGenerator generator, sgShaderType type);
+   SHGEN_EXPORT const char* sgGetShader(sgContextPtr context, const char* entry, sgGenerator generator, sgShaderType type);
 
-   const char* sgGetLastError();
+   SHGEN_EXPORT const char* sgGetLastError();
 
-   void sgContextDeinit(sgContextPtr*);
+   SHGEN_EXPORT void sgContextDeinit(sgContextPtr*);
 
 #ifdef __cplusplus
 }

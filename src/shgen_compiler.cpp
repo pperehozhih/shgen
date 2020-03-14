@@ -7,16 +7,37 @@
 //
 
 #include "shgen_compiler.h"
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <dirent.h>
 #include <sys/stat.h>
+#endif
 #include <shgen.h>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <queue>
 
+#ifdef _MSC_VER 
+//not #if defined(_WIN32) || defined(_WIN64) because we have strncasecmp in mingw
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
 namespace {
    void CleanDirectory(const char* directory) {
+#ifdef _WIN32
+      HANDLE hFind;
+      WIN32_FIND_DATA FindFileData;
+
+      if((hFind = FindFirstFile(directory, &FindFileData)) != INVALID_HANDLE_VALUE){
+          do{
+              DeleteFileA((std::string(directory) + "/" + std::string(FindFileData.cFileName)).c_str());
+          }while(FindNextFile(hFind, &FindFileData));
+          FindClose(hFind);
+      }
+#else
       DIR *theFolder = opendir(directory);
       struct dirent *next_file;
       
@@ -26,13 +47,25 @@ namespace {
          remove((std::string(directory) + "/" + next_file->d_name).c_str());
       }
       closedir(theFolder);
+#endif
    }
    
    bool CheckDir(const char* dir){
+#ifdef _WIN32
+      DWORD ftyp = GetFileAttributesA(dir);
+      if (ftyp == INVALID_FILE_ATTRIBUTES)
+         return false;  //something is wrong with your path!
+
+      if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
+         return true;   // this is a directory!
+
+      return false;    // this is not a directory!
+#else
       DIR *theFolder = opendir(dir);
       bool res = theFolder != 0;
       closedir(theFolder);
       return res;
+#endif
    }
 
    std::string ReadFile(const char* fileName)
@@ -120,10 +153,17 @@ namespace shgen {
          if (m_fx_source.empty()){
             throw std::string("Cannot set fx content");
          }
+#ifdef _WIN32
+         if (!CreateDirectory(m_fx_folder.c_str(), nullptr)) {
+            throw (std::string("Cannot create dir") + m_fx_folder);
+         }
+#else
          const int dir_err = mkdir(m_fx_folder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
          if (dir_err < 0 && CheckDir(m_fx_folder.c_str()) == false){
             throw (std::string("Cannot create dir") + m_fx_folder);
          }
+#endif
+         
          sgContextPtr context = sgContextInit();
          if (!context) {
             throw (std::string("Cannot init shgen context:") + sgGetLastError());
