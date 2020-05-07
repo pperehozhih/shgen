@@ -13,6 +13,7 @@
 #include <Engine/Allocator.h>
 #include <hlsl2glsl.h>
 #include <map>
+#include <memory>
 
 struct sgContextParser {
    M4::Allocator  allocator;
